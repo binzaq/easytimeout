@@ -28,24 +28,25 @@ class Timeout(object):
         
         self._limit_ = limit
         self.__timeout_result__ = timeout_result
-        self.__result__ = None
-        self.__exception__ = None
-        self.__event__ = Event()
 
-    def __set_result__(self, value, exception=None):
-        self.__result__ = value
-        self.__exception__ = exception
-        self.__event__.set()
+    def __set_result__(self, result, exception, event):
+        def wrapper(result_value, exception_value):
+            result.append(result_value)
+            exception.append(exception_value)
+            event.set()
+        return wrapper
 
     def __call__(self, func):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
-            execution_thread = ExecutionThread(func, args=args, kwargs=kwargs, callback=self.__set_result__)
+            result, exception = [], []
+            event = Event()
+            execution_thread = ExecutionThread(func, args=args, kwargs=kwargs, callback=self.__set_result__(result, exception, event))
             execution_thread.start()
-            if self.__event__.wait(self._limit_):
-                if self.__exception__ is not None:
-                    raise self.__exception__
-                return self.__result__
+            if event.wait(self._limit_):
+                if not exception:
+                    raise exception[0]
+                return result[0]
             else:
                 execution_thread.terminate()
                 if callable(self.__timeout_result__):
