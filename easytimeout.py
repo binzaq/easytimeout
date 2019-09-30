@@ -44,7 +44,7 @@ class Timeout(object):
             execution_thread = ExecutionThread(func, args=args, kwargs=kwargs, callback=self.__set_result__(result, exception, event))
             execution_thread.start()
             if event.wait(self._limit_):
-                if exception:
+                if exception and exception[0] is not None:
                     raise exception[0]
                 return result[0]
             else:
