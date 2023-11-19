@@ -21,7 +21,7 @@ class Timeout(object):
             limit {int} -- if the execution of your function has exceeded the time limit in seconds, it will be interrupted.
         
         Keyword Arguments:
-            timeout_result {callable or any} -- If timeout_result is a callable, it will be called with all the parameters were passed to 
+            timeout_result {callable or any} -- If timeout_result is callable, it will be called with all the parameters were passed to 
             your function while your function timeout, and its return value willed be taken as your function's return value, otherwise,
             if timeout_result will be taken as your function's return value. The TimeoutError will be raise if timeout_result is None. (default: {None})
         """
